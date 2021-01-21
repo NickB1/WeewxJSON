@@ -146,20 +146,14 @@ class Station(object):
     def parse_readings(self, json_data):
         data = dict()
         try:
-            wind_direction = json_data['response']['windmeters'][0]['dir']
-            #[wind_direction] = self.get_degrees_number(self, json_data['response']['windmeters'][0]['dir'])
+            data['windDir'] = self.get_degrees_number(self, json_data['response']['windmeters'][0]['dir'])[0]
             #wind_direction_corrected = self.rotate_degrees(self, wind_direction, 0)
-            wind_speed = json_data['response']['windmeters'][0]['ws']
-            wind_speed_gust = json_data['response']['windmeters'][0]['gu']
-            temperature = json_data['response']['windmeters'][0]['te']
+            data['windSpeed'] = json_data['response']['windmeters'][0]['ws']
+            data['windGust'] = json_data['response']['windmeters'][0]['gu']
+            data['outTemp'] = json_data['response']['windmeters'][0]['te']
         except (ValueError, KeyError) as e:
             logerr("JSON parsing error")
-        else:
-            data['windDir'] = self.get_degrees_number(self, wind_direction)[0]
-            #data['windDir'] = wind_direction_corrected
-            data['windSpeed'] = wind_speed
-            data['windGust'] = wind_speed_gust
-            data['outTemp'] = temperature
+            data = dict()
 
         return data
 
