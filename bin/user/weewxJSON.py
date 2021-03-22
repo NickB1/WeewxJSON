@@ -13,7 +13,7 @@ import weewx.drivers
 import weeutil.weeutil
 
 DRIVER_NAME = 'weewxJSON'
-DRIVER_VERSION = '1.0'
+DRIVER_VERSION = '1.00'
 
 DEFAULT_URL = 'http://your-ip/password/get-sensors'
 LOOP_INTERVAL = 10
@@ -99,16 +99,20 @@ class Station(object):
             print("URL Error")
 
     def json_read_url_with_retry(self, max_tries=5, retry_wait=10):
+        packet = dict()
         for retries in range(0, max_tries):
             try:
-                data = requests.get(self.url, timeout=retry_wait)  # , timeout=10
+                data = requests.get(self.url, timeout=retry_wait)
             except requests.exceptions.RequestException as e:
                 loginf("Failed attempt %d of %d to get json data: %s" %
                        (retries + 1, max_tries, e))
-                # time.sleep(retry_wait)
             else:
-                # return parse_readings(self, data.json())
-                return self.parse_readings(self, data.json())
+                try:
+                    packet = self.parse_readings(self, data.json())
+                except (ValueError, KeyError, json.decoder.JSONDecodeError) as e:
+                    logerr("JSON parsing error")
+                    packet = dict()
+            return packet
         else:
             msg = "Max retries (%d) exceeded for readings" % max_tries
             logerr(msg)
