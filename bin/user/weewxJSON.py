@@ -109,6 +109,7 @@ class Station(object):
             else:
                 try:
                     packet = self.parse_readings(self, data.json())
+                    data.close()
                 except (ValueError, KeyError, json.decoder.JSONDecodeError) as e:
                     logerr("JSON parsing error")
                     packet = dict()
